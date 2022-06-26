@@ -15,6 +15,7 @@ indicatif = {version = "*", features = ["with_rayon"]}
 chrono = "*"
 rand = "*"
 pyo3 = "*"
+ndarray = "*"
 
 [lib]
 name = "rsprint"
