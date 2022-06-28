@@ -1,6 +1,7 @@
 use std::{io::Error, collections::HashSet};
 use std::fs::read_to_string;
 
+use ndarray::{Array2};
 use rayon::prelude::*;
 use bio::io::fasta::{Reader};
 
@@ -93,7 +94,7 @@ pub fn load_pairs(filename: &str) -> Vec<(String, String)> {
 }
 
 /// Saves scores
-pub fn save_scores(scores: &Vec<f32>, 
+pub fn save_scores(scores: &Array2<f32>, 
                    protein_set: &ProteinSet,
                  filename: &str) -> std::io::Result<()> {
 
@@ -116,7 +117,7 @@ pub fn save_scores(scores: &Vec<f32>,
             for j in 0..num_sequences_in_row {
                 let protein1 = protein_set.get_protein_by_id(row_index).name();
                 let protein2 = protein_set.get_protein_by_id(j).name();
-                row_scores.push(format!("{} {} {}", protein1, protein2, scores[(row_index * (row_index + 1))/2 + j]));
+                row_scores.push(format!("{} {} {}", protein1, protein2, scores[[row_index, j]]));
             }
             row_scores.join("\n")
         })
