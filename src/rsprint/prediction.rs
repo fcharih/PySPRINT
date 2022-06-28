@@ -2,20 +2,19 @@ use std::cell::UnsafeCell;
 use std::time::Instant;
 use std::collections::HashSet;
 use rayon::prelude::*;
+use ndarray::{Array2, Axis};
 use crate::rsprint::proteinset::ProteinSet;
 use crate::rsprint::hsp::HSP;
 use crate::rsprint::scoring::score_hsp;
 
 pub struct PredictionMatrix {
-    pub protein_set_size: usize,
-    pub scores: UnsafeCell<Vec<f32>>
+    pub scores: UnsafeCell<Array2<f32>>
 }
 
 impl PredictionMatrix {
     pub fn new(protein_set_size: usize) -> PredictionMatrix {
         PredictionMatrix {
-            protein_set_size,
-            scores: UnsafeCell::new(vec![0f32; protein_set_size*(protein_set_size + 1)/2])
+            scores: UnsafeCell::new(Array2::zeros((protein_set_size, protein_set_size)))
         }
     }
 }
@@ -31,7 +30,7 @@ pub fn score_interactions(
     process_rank: usize,
     world_size: usize,
     verbose: bool
-) -> Vec<f32> {
+) -> Array2<f32> {
 
     let mapped_training_pairs: Vec<(usize, usize)> = training_pairs.iter()
         .filter(|pair| protein_set.contains(&pair.0) && protein_set.contains(&pair.1))
@@ -84,7 +83,7 @@ pub fn score_interactions(
             println!("Process {} - Scored the interactions in {}...", process_rank, start.elapsed().as_secs());
         }
 
-        (*matrix.scores.get()).iter().cloned().collect()
+        (*matrix.scores.get()).clone()
     }
 }
 
@@ -154,7 +153,8 @@ pub unsafe fn fill_matrix(
                 let term1 = hsp1.3 * (hsp2.2 - kmer_size + 1f32);
                 let term2 = hsp2.3 * (hsp1.2 - kmer_size + 1f32);
                 let contribution = (term1 + term2) / (hsp1.1 * hsp2.1); // TODO divide at the end
-                (*matrix_ptr)[get_1d_index(hsp1.0, hsp2.0)] += contribution;
+                (*matrix_ptr)[[hsp1.0, hsp2.0]] += contribution;
+                (*matrix_ptr)[[hsp2.0, hsp1.0]] += contribution;
             }
         }
 
@@ -170,8 +170,14 @@ pub unsafe fn fill_matrix(
                 let term1 = hsp1.3 * (hsp2.2 - kmer_size + 1f32);
                 let term2 = hsp2.3 * (hsp1.2 - kmer_size + 1f32);
                 let contribution = (term1 + term2) / (hsp1.1 * hsp2.1); // TODO divide at the end
-                (*matrix_ptr)[get_1d_index(hsp1.0, hsp2.0)] += contribution;
+                (*matrix_ptr)[[hsp1.0, hsp2.0]] += contribution;
+                (*matrix_ptr)[[hsp2.0, hsp1.0]] += contribution;
             }
         }
+    }
+
+    // Divide the diagonal by two because it is double scored
+    for i in 0..(*matrix_ptr).len_of(Axis(0)) {
+        (*matrix_ptr)[[i, i]] /= 2.0;
     }
 }

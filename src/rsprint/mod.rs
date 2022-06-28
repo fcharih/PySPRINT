@@ -17,9 +17,9 @@ pub mod prediction;
 
 pub mod pymodules;
 
-#[pymodule]
-fn darwin(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_class::<pymodules::SPRINT>()?;
-    m.add_class::<hsp::HSP>()?;
-    Ok(())
-}
+//#[pymodule]
+//fn darwin(_py: Python, m: &PyModule) -> PyResult<()> {
+//    m.add_class::<pymodules::SPRINT>()?;
+//    m.add_class::<hsp::HSP>()?;
+//    Ok(())
+//}
