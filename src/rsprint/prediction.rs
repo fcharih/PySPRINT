@@ -1,38 +1,20 @@
-<<<<<<< HEAD
-=======
-use std::cell::UnsafeCell;
-use std::time::Instant;
-use std::collections::HashSet;
-use rayon::prelude::*;
-use ndarray::{Array2, Axis};
-use crate::rsprint::proteinset::ProteinSet;
->>>>>>> 8230d32737e34e598414dac9fca0330f9fba71da
 use crate::rsprint::hsp::HSP;
 use crate::rsprint::proteinset::ProteinSet;
 use crate::rsprint::scoring::score_hsp;
+use ndarray::{Array2, Axis};
 use rayon::prelude::*;
 use std::cell::UnsafeCell;
 use std::collections::HashSet;
 use std::time::Instant;
 
 pub struct PredictionMatrix {
-<<<<<<< HEAD
-    pub protein_set_size: usize,
-    pub scores: UnsafeCell<Vec<f32>>,
-=======
-    pub scores: UnsafeCell<Array2<f32>>
->>>>>>> 8230d32737e34e598414dac9fca0330f9fba71da
+    pub scores: UnsafeCell<Array2<f32>>,
 }
 
 impl PredictionMatrix {
     pub fn new(protein_set_size: usize) -> PredictionMatrix {
         PredictionMatrix {
-<<<<<<< HEAD
-            protein_set_size,
-            scores: UnsafeCell::new(vec![0f32; protein_set_size * (protein_set_size + 1) / 2]),
-=======
-            scores: UnsafeCell::new(Array2::zeros((protein_set_size, protein_set_size)))
->>>>>>> 8230d32737e34e598414dac9fca0330f9fba71da
+            scores: UnsafeCell::new(Array2::zeros((protein_set_size, protein_set_size))),
         }
     }
 }
@@ -47,17 +29,10 @@ pub fn score_interactions(
     kmer_size: usize,
     process_rank: usize,
     world_size: usize,
-<<<<<<< HEAD
     verbose: bool,
-) -> Vec<f32> {
+) -> Array2<f32> {
     let mapped_training_pairs: Vec<(usize, usize)> = training_pairs
         .iter()
-=======
-    verbose: bool
-) -> Array2<f32> {
-
-    let mapped_training_pairs: Vec<(usize, usize)> = training_pairs.iter()
->>>>>>> 8230d32737e34e598414dac9fca0330f9fba71da
         .filter(|pair| protein_set.contains(&pair.0) && protein_set.contains(&pair.1))
         .map(|pair| {
             (
