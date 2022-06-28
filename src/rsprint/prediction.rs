@@ -24,8 +24,8 @@ unsafe impl Send for PredictionMatrix {}
 
 pub fn score_interactions(
     protein_set: &ProteinSet,
-    hsps: HashSet<HSP>,
-    training_pairs: Vec<(String, String)>,
+    hsps: &HashSet<HSP>,
+    training_pairs: &Vec<(String, String)>,
     kmer_size: usize,
     process_rank: usize,
     world_size: usize,
@@ -95,7 +95,7 @@ pub unsafe fn initialize_score_matrix(matrix: &mut Vec<f32>, protein_set: &Prote
     }
 }
 
-pub fn build_hsp_table(hsps: HashSet<HSP>, protein_set: &ProteinSet, interactors: &HashSet<usize>, kmer_size: usize) -> Vec<Vec<(usize, f32, f32, f32)>> {
+pub fn build_hsp_table(hsps: &HashSet<HSP>, protein_set: &ProteinSet, interactors: &HashSet<usize>, kmer_size: usize) -> Vec<Vec<(usize, f32, f32, f32)>> {
     let mut table: Vec<Vec<(usize, f32, f32, f32)>> = Vec::new();
 
     // Initialize the table 
