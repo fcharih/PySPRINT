@@ -1,21 +1,21 @@
-use std::cell::UnsafeCell;
-use std::time::Instant;
-use std::collections::HashSet;
-use rayon::prelude::*;
-use crate::rsprint::proteinset::ProteinSet;
 use crate::rsprint::hsp::HSP;
+use crate::rsprint::proteinset::ProteinSet;
 use crate::rsprint::scoring::score_hsp;
+use rayon::prelude::*;
+use std::cell::UnsafeCell;
+use std::collections::HashSet;
+use std::time::Instant;
 
 pub struct PredictionMatrix {
     pub protein_set_size: usize,
-    pub scores: UnsafeCell<Vec<f32>>
+    pub scores: UnsafeCell<Vec<f32>>,
 }
 
 impl PredictionMatrix {
     pub fn new(protein_set_size: usize) -> PredictionMatrix {
         PredictionMatrix {
             protein_set_size,
-            scores: UnsafeCell::new(vec![0f32; protein_set_size*(protein_set_size + 1)/2])
+            scores: UnsafeCell::new(vec![0f32; protein_set_size * (protein_set_size + 1) / 2]),
         }
     }
 }
@@ -25,17 +25,22 @@ unsafe impl Send for PredictionMatrix {}
 
 pub fn score_interactions(
     protein_set: &ProteinSet,
-    hsps: HashSet<HSP>,
-    training_pairs: Vec<(String, String)>,
+    hsps: &HashSet<HSP>,
+    training_pairs: &Vec<(String, String)>,
     kmer_size: usize,
     process_rank: usize,
     world_size: usize,
-    verbose: bool
+    verbose: bool,
 ) -> Vec<f32> {
-
-    let mapped_training_pairs: Vec<(usize, usize)> = training_pairs.iter()
+    let mapped_training_pairs: Vec<(usize, usize)> = training_pairs
+        .iter()
         .filter(|pair| protein_set.contains(&pair.0) && protein_set.contains(&pair.1))
-        .map(|pair| (protein_set.get_protein_by_name(&pair.0).index(), protein_set.get_protein_by_name(&pair.1).index()))
+        .map(|pair| {
+            (
+                protein_set.get_protein_by_name(&pair.0).index(),
+                protein_set.get_protein_by_name(&pair.1).index(),
+            )
+        })
         .collect();
 
     if verbose {
@@ -43,14 +48,16 @@ pub fn score_interactions(
     }
 
     let mut interactors: HashSet<usize> = HashSet::new();
-        mapped_training_pairs.iter()
-            .for_each(|pair| {
-                interactors.insert(pair.0);
-                interactors.insert(pair.1);
-            });
+    mapped_training_pairs.iter().for_each(|pair| {
+        interactors.insert(pair.0);
+        interactors.insert(pair.1);
+    });
 
     if verbose {
-        println!("Process {} - Identification of relevant pairs.", process_rank);
+        println!(
+            "Process {} - Identification of relevant pairs.",
+            process_rank
+        );
     }
     // Prepare the batch of training pairs to use in this process
     let mut training_pairs_to_process: Vec<(usize, usize)> = vec![];
@@ -81,7 +88,11 @@ pub fn score_interactions(
             .for_each(|pair| fill_matrix(pair, &hsp_table, kmer_size as f32, &matrix));
 
         if verbose {
-            println!("Process {} - Scored the interactions in {}...", process_rank, start.elapsed().as_secs());
+            println!(
+                "Process {} - Scored the interactions in {}...",
+                process_rank,
+                start.elapsed().as_secs()
+            );
         }
 
         (*matrix.scores.get()).iter().cloned().collect()
@@ -91,35 +102,56 @@ pub fn score_interactions(
 pub unsafe fn initialize_score_matrix(matrix: &mut Vec<f32>, protein_set: &ProteinSet) {
     let sequence_set_size = protein_set.len();
     matrix.clear();
-    for _ in 0..sequence_set_size*(sequence_set_size + 1)/2 {
+    for _ in 0..sequence_set_size * (sequence_set_size + 1) / 2 {
         matrix.push(0f32);
     }
 }
 
-pub fn build_hsp_table(hsps: HashSet<HSP>, protein_set: &ProteinSet, interactors: &HashSet<usize>, kmer_size: usize) -> Vec<Vec<(usize, f32, f32, f32)>> {
+pub fn build_hsp_table(
+    hsps: &HashSet<HSP>,
+    protein_set: &ProteinSet,
+    interactors: &HashSet<usize>,
+    kmer_size: usize,
+) -> Vec<Vec<(usize, f32, f32, f32)>> {
     let mut table: Vec<Vec<(usize, f32, f32, f32)>> = Vec::new();
 
-    // Initialize the table 
+    // Initialize the table
     for _ in 0..protein_set.len() {
         table.push(vec![]);
     }
 
-    hsps.iter()
-        .for_each(|hsp| {
-            let protein1 = protein_set.get_protein_by_id(hsp.location(0).index());
-            let protein2 = protein_set.get_protein_by_id(hsp.location(1).index());
-            let hsp_score = score_hsp(protein1, protein2, hsp.location(0).position(), hsp.location(1).position(), hsp.len(), kmer_size);
+    hsps.iter().for_each(|hsp| {
+        let protein1 = protein_set.get_protein_by_id(hsp.location(0).index());
+        let protein2 = protein_set.get_protein_by_id(hsp.location(1).index());
+        let hsp_score = score_hsp(
+            protein1,
+            protein2,
+            hsp.location(0).position(),
+            hsp.location(1).position(),
+            hsp.len(),
+            kmer_size,
+        );
 
-            if interactors.contains(&hsp.location(0).index()) || interactors.contains(&hsp.location(1).index()) { 
-                table[hsp.location(0).index()]
-                .push((hsp.location(1).index(), protein2.len() as f32, hsp.len() as f32, hsp_score as f32));
+        if interactors.contains(&hsp.location(0).index())
+            || interactors.contains(&hsp.location(1).index())
+        {
+            table[hsp.location(0).index()].push((
+                hsp.location(1).index(),
+                protein2.len() as f32,
+                hsp.len() as f32,
+                hsp_score as f32,
+            ));
 
-                if hsp.location(0).index() != hsp.location(1).index() {
-                    table[hsp.location(1).index()]
-                    .push((hsp.location(0).index(), protein1.len() as f32, hsp.len() as f32, hsp_score as f32));
-                }
+            if hsp.location(0).index() != hsp.location(1).index() {
+                table[hsp.location(1).index()].push((
+                    hsp.location(0).index(),
+                    protein1.len() as f32,
+                    hsp.len() as f32,
+                    hsp_score as f32,
+                ));
             }
-        });
+        }
+    });
 
     for row in &mut table {
         row.sort_by_key(|partner| partner.0);
@@ -132,7 +164,7 @@ pub fn build_hsp_table(hsps: HashSet<HSP>, protein_set: &ProteinSet, interactors
 pub fn get_1d_index(position1: usize, position2: usize) -> usize {
     let smallest = std::cmp::min(position1, position2);
     let largest = std::cmp::max(position1, position2);
-    let row_start = largest*(largest + 1) / 2;
+    let row_start = largest * (largest + 1) / 2;
     return row_start + smallest;
 }
 
@@ -140,9 +172,8 @@ pub unsafe fn fill_matrix(
     interacting_pair: &(usize, usize),
     hsps: &Vec<Vec<(usize, f32, f32, f32)>>,
     kmer_size: f32,
-    prediction_matrix: &PredictionMatrix
+    prediction_matrix: &PredictionMatrix,
 ) {
-
     let matrix_ptr = prediction_matrix.scores.get();
 
     if interacting_pair.0 == interacting_pair.1 {
@@ -157,16 +188,13 @@ pub unsafe fn fill_matrix(
                 (*matrix_ptr)[get_1d_index(hsp1.0, hsp2.0)] += contribution;
             }
         }
-
     } else {
         let hsps1 = &hsps[interacting_pair.0];
 
         for hsp1 in hsps1 {
-
             let hsps2 = &hsps[interacting_pair.1];
 
             for hsp2 in hsps2 {
-                
                 let term1 = hsp1.3 * (hsp2.2 - kmer_size + 1f32);
                 let term2 = hsp2.3 * (hsp1.2 - kmer_size + 1f32);
                 let contribution = (term1 + term2) / (hsp1.1 * hsp2.1); // TODO divide at the end
