@@ -98,16 +98,6 @@ pub fn save_scores(scores: &Array2<f32>,
                    protein_set: &ProteinSet,
                  filename: &str) -> std::io::Result<()> {
 
-    // Serial
-    //let mut file_contents = String::from("");
-    //for i in 0..sequence_set.len() {
-    //    let num_sequences_in_row = i + 1;
-    //    for j in 0..num_sequences_in_row {
-    //        let protein1 = sequence_set.get_protein_name(i);
-    //        let protein2 = sequence_set.get_protein_name(j);
-    //        file_contents.push_str(&format!("{} {} {}\n", protein1, protein2, scores[(i * (i + 1))/2 + j]));
-    //    }
-    //}
     let file_contents: String = (0..protein_set.len())
         .collect::<Vec<usize>>()
         .par_iter()
