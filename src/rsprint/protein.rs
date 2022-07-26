@@ -16,7 +16,9 @@ impl Protein {
             index,
             name: name.clone(),
             sequence: sequence.clone(),
-            residues: sequence.chars().map(|amino_acid| *RESIDUE_CODES.get(&amino_acid).unwrap()).collect(),
+            residues: sequence.chars()
+                .map(|amino_acid| *RESIDUE_CODES.get(&amino_acid).unwrap())
+                .collect(),
             new
         }
     }
