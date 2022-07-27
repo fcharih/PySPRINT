@@ -14,6 +14,7 @@ pub mod similarity;
 pub mod utils;
 pub mod processing;
 pub mod prediction;
+pub mod sites;
 
 pub mod pymodules;
 

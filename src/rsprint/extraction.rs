@@ -199,7 +199,7 @@ pub unsafe fn compute_hsps_for_smer(
         } else {
             let locations = smer.locations().iter().cloned().collect::<Vec<Location>>();
             for i in 0..smer.locations().len() {
-                for j in i+1..smer.locations().len() { // i+1 in original SPRINT, but I don't think that's correct, should be i 
+                for j in i+1..smer.locations().len() { 
                     if new_only && !protein_set.is_new(locations[i].index()) && !protein_set.is_new(locations[j].index()) {
                         continue
                     }

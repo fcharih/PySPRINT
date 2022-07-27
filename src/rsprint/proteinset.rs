@@ -48,11 +48,25 @@ impl ProteinSet {
     }
 
     /// Add new proteins
-    pub fn add_new(&mut self, new_proteins: Vec<Protein>) {
-        let proteins: Vec<Protein> = self.proteins.iter().cloned().chain(new_proteins).collect();
-        let indices = get_indices(&proteins);
+    pub fn add_new(&mut self, proteins: Vec<Protein>, new: bool) {
+        let mut new_set = vec![];
 
-        self.proteins = proteins;
+        // Add the old proteins
+        for p in self.proteins.iter() {
+            new_set.push(p.clone());
+        }
+
+        // Add the new proteins
+        for (i, p) in proteins.iter().enumerate() {
+            let new_prot = Protein::new(i + self.proteins.len(), p.name(), p.seq(), new);
+            new_set.push(new_prot);
+        }
+
+        // Reset the indices table
+        let indices = get_indices(&new_set);
+
+        // Update
+        self.proteins = new_set;
         self.indices = indices;
     }
 

@@ -1,28 +1,36 @@
 use crate::rsprint::hsp::HSP;
 use crate::rsprint::proteinset::ProteinSet;
 use crate::rsprint::scoring::score_hsp;
-use ndarray::{Array2, Axis};
 use rayon::prelude::*;
 use std::cell::UnsafeCell;
-use std::collections::HashSet;
+use std::collections::{HashSet, HashMap};
 use std::time::Instant;
 
-pub struct PredictionMatrix {
-    pub scores: UnsafeCell<Array2<f32>>,
+pub struct ContributionsDict {
+    pub dict: UnsafeCell<HashMap<usize, Vec<f32>>>
 }
 
-impl PredictionMatrix {
-    pub fn new(protein_set_size: usize) -> PredictionMatrix {
-        PredictionMatrix {
-            scores: UnsafeCell::new(Array2::zeros((protein_set_size, protein_set_size))),
+impl ContributionsDict {
+    pub fn new(target_index: usize, protein_set: &ProteinSet) -> ContributionsDict {
+        let target_length = protein_set.get_protein_by_id(target_index).len();
+        let mut contributions_dict = HashMap::new();
+
+        for p in protein_set.iter() {
+            if p.is_new() {
+                contributions_dict.insert(p.index(), vec![0f32; target_length]);
+            }
         }
+
+        ContributionsDict { dict: UnsafeCell::new(contributions_dict) }
     }
 }
 
-unsafe impl Sync for PredictionMatrix {}
-unsafe impl Send for PredictionMatrix {}
+unsafe impl Sync for ContributionsDict {}
+unsafe impl Send for ContributionsDict {}
 
-pub fn score_interactions(
+
+pub fn compute_contributions(
+    target_name: &String,
     protein_set: &ProteinSet,
     hsps: &HashSet<HSP>,
     training_pairs: &Vec<(String, String)>,
@@ -30,7 +38,7 @@ pub fn score_interactions(
     process_rank: usize,
     world_size: usize,
     verbose: bool,
-) -> Array2<f32> {
+) -> HashMap<usize, Vec<f32>> {
     let mapped_training_pairs: Vec<(usize, usize)> = training_pairs
         .iter()
         .filter(|pair| protein_set.contains(&pair.0) && protein_set.contains(&pair.1))
@@ -75,7 +83,9 @@ pub fn score_interactions(
         if verbose {
             println!("Process {} - Initializing the score matrix.", process_rank);
         }
-        let matrix = PredictionMatrix::new(protein_set.len());
+
+        let target_index = protein_set.get_protein_by_name(target_name).index();
+        let dict = ContributionsDict::new(target_index, protein_set);
 
         if verbose {
             println!("Process {} - Scoring the interactions...", process_rank);
@@ -84,7 +94,7 @@ pub fn score_interactions(
 
         training_pairs_to_process
             .par_iter()
-            .for_each(|pair| fill_matrix(pair, &hsp_table, kmer_size as f32, &matrix));
+            .for_each(|pair| fill_dict(target_index, pair, &hsp_table, kmer_size as f32, protein_set, &dict));
 
         if verbose {
             println!(
@@ -94,7 +104,7 @@ pub fn score_interactions(
             );
         }
 
-        (*matrix.scores.get()).clone()
+        return (*dict.dict.get()).clone();
     }
 }
 
@@ -106,29 +116,13 @@ pub unsafe fn initialize_score_matrix(matrix: &mut Vec<f32>, protein_set: &Prote
     }
 }
 
-/// Creates a table of HSPs used in scoring
-/// 
-/// It lists the HSPs in which a given protein is involved
-/// The format of the table is a Vec<Vec<ScoredHSP>> as follows:
-/// 
-/// <--------------- HSPs (vector) ---------------> 
-/// ^
-/// |
-/// |
-/// Protein index
-/// |
-/// |
-/// v
-/// 
-/// The HSPs are sorted in order of the partner protein's index (entry 0 of the scored HSP tuple)
-/// Tuples are (partner_index, partner protein length, length of HSP, HSP score)
 pub fn build_hsp_table(
     hsps: &HashSet<HSP>,
     protein_set: &ProteinSet,
     interactors: &HashSet<usize>,
     kmer_size: usize,
-) -> Vec<Vec<(usize, f32, f32, f32)>> {
-    let mut table: Vec<Vec<(usize, f32, f32, f32)>> = Vec::new();
+) -> Vec<Vec<(usize, f32, f32, f32, usize, usize)>> {
+    let mut table: Vec<Vec<(usize, f32, f32, f32, usize, usize)>> = Vec::new();
 
     // Initialize the table
     for _ in 0..protein_set.len() {
@@ -155,16 +149,19 @@ pub fn build_hsp_table(
                 protein2.len() as f32,
                 hsp.len() as f32,
                 hsp_score as f32,
+                hsp.location(0).position(),
+                hsp.location(1).position()
             ));
 
-            // If the HSP is not within the same protein, add the reciprocal HSP
-            // in the other row of the table
+            // If not within the same pro
             if hsp.location(0).index() != hsp.location(1).index() {
                 table[hsp.location(1).index()].push((
                     hsp.location(0).index(),
                     protein1.len() as f32,
                     hsp.len() as f32,
                     hsp_score as f32,
+                    hsp.location(1).position(),
+                    hsp.location(0).position()
                 ));
             }
         }
@@ -185,24 +182,16 @@ pub fn get_1d_index(position1: usize, position2: usize) -> usize {
     return row_start + smallest;
 }
 
-/// Fill the score matrix using the similarity-to-interacting-pair principle
-/// 
-///               Interactor 1 --------------- Interactor 2
-///                    |                            |
-///               HSP1 |                       HSP2 |
-///                    |                            |
-///                 Query 1                      Query 2
-/// 
-pub unsafe fn fill_matrix(
+pub unsafe fn fill_dict(
+    target_index: usize,
     interacting_pair: &(usize, usize),
-    hsps: &Vec<Vec<(usize, f32, f32, f32)>>,
+    hsps: &Vec<Vec<(usize, f32, f32, f32, usize, usize)>>,
     kmer_size: f32,
-    prediction_matrix: &PredictionMatrix,
+    protein_set: &ProteinSet,
+    contributions_dict: &ContributionsDict,
 ) {
-    let matrix_ptr = prediction_matrix.scores.get();
+    let dict_ptr = contributions_dict.dict.get();
 
-    // If the training pair used for scoring involved the same protein (oligomerization),
-    // then, only use the HSP pairs once!
     if interacting_pair.0 == interacting_pair.1 {
         for i in 0..hsps[interacting_pair.0].len() {
             for j in i..hsps[interacting_pair.1].len() {
@@ -211,13 +200,27 @@ pub unsafe fn fill_matrix(
 
                 let term1 = hsp1.3 * (hsp2.2 - kmer_size + 1f32);
                 let term2 = hsp2.3 * (hsp1.2 - kmer_size + 1f32);
-                let contribution = (term1 + term2) / (hsp1.1 * hsp2.1);
-                (*matrix_ptr)[[hsp1.0, hsp2.0]] += contribution;
-                (*matrix_ptr)[[hsp2.0, hsp1.0]] += contribution;
+                let contribution = (term1 + term2) / (hsp1.1 * hsp2.1); // TODO divide at the end
+
+                let p1 = protein_set.get_protein_by_id(hsp1.0);
+                let p2 = protein_set.get_protein_by_id(hsp2.0);
+                let p1_is_target = p1.index() == target_index;
+
+                if (p1.is_new() && p2.index() == target_index) || (p2.is_new() && p1.index() == target_index) {
+                    if p1_is_target {
+                        let vec = (*dict_ptr).get_mut(&p2.index()).unwrap();
+                        for i in 0..hsp1.2 as usize {
+                            vec[hsp1.5 + i] += contribution / hsp1.2; // Contribution is distributed over similarity region
+                        }
+                    } else {
+                        let vec = (*dict_ptr).get_mut(&p1.index()).unwrap();
+                        for i in 0..hsp2.2 as usize {
+                            vec[hsp2.5 + i] += contribution / hsp2.2; 
+                        }
+                    }
+                }
             }
         }
-
-    // We are not concerned with this if the interacting proteins are different.
     } else {
         let hsps1 = &hsps[interacting_pair.0];
 
@@ -227,15 +230,28 @@ pub unsafe fn fill_matrix(
             for hsp2 in hsps2 {
                 let term1 = hsp1.3 * (hsp2.2 - kmer_size + 1f32);
                 let term2 = hsp2.3 * (hsp1.2 - kmer_size + 1f32);
-                let contribution = (term1 + term2) / (hsp1.1 * hsp2.1);
-                (*matrix_ptr)[[hsp1.0, hsp2.0]] += contribution;
-                (*matrix_ptr)[[hsp2.0, hsp1.0]] += contribution;
+                let contribution = (term1 + term2) / (hsp1.1 * hsp2.1); // TODO divide at the end
+
+
+                let p1 = protein_set.get_protein_by_id(hsp1.0);
+                let p2 = protein_set.get_protein_by_id(hsp2.0);
+                let p1_is_target = p1.index() == target_index;
+
+                if (p1.is_new() && p2.index() == target_index) || (p2.is_new() && p1.index() == target_index) {
+                    if p1_is_target {
+                        let vec = (*dict_ptr).get_mut(&p2.index()).unwrap();
+                        for i in 0..hsp1.2 as usize {
+                            vec[hsp1.5 + i] += contribution / hsp1.2;
+                        }
+                    } else {
+                        let vec = (*dict_ptr).get_mut(&p1.index()).unwrap();
+                        for i in 0..hsp2.2 as usize {
+                            vec[hsp2.5 + i] += contribution / hsp2.2;
+                        }
+                    }
+                }
             }
         }
     }
-
-    // Divide the diagonal by two because it is double scored
-    for i in 0..(*matrix_ptr).len_of(Axis(0)) {
-        (*matrix_ptr)[[i, i]] /= 2.0;
-    }
 }
+

@@ -1,4 +1,4 @@
-use std::{io::Error, collections::HashSet};
+use std::{io::Error, collections::HashSet, collections::HashMap};
 use std::fs::read_to_string;
 
 use ndarray::{Array2};
@@ -10,7 +10,7 @@ use super::hsp::HSP;
 use super::proteinset::ProteinSet;
 
 /// Open a fasta file and returns a vector of Protein
-pub fn load_fasta(filename: &str, training: bool) -> Result<Vec<Protein>, Error> {
+pub fn load_fasta(filename: &str, new: bool) -> Result<Vec<Protein>, Error> {
     let reader = Reader::from_file(filename).unwrap();
     let mut proteins = vec![];
 
@@ -19,7 +19,7 @@ pub fn load_fasta(filename: &str, training: bool) -> Result<Vec<Protein>, Error>
         let protein_id = String::from(record.id());
         let sequence_string: String = 
             std::str::from_utf8(record.seq()).unwrap().to_string();
-        let new_protein: Protein = Protein::new(i, protein_id.clone(), sequence_string, training);
+        let new_protein: Protein = Protein::new(i, protein_id.clone(), sequence_string, new);
         proteins.push(new_protein);
     }
 
@@ -28,9 +28,7 @@ pub fn load_fasta(filename: &str, training: bool) -> Result<Vec<Protein>, Error>
 
 ///// Saves a HashSet of HSPs to a file with the locations 
 ///// for a protein pair sorted by position
-pub fn save_hsps(hsps: HashSet<HSP>,
-    protein_set: &ProteinSet,
-    filename: &str) -> Result<(), Error> {
+pub fn save_hsps(hsps: HashSet<HSP>, protein_set: &ProteinSet, filename: &str) -> Result<(), Error> {
 
     let output = hsps.into_iter()
     .map(|hsp| hsp.as_string(protein_set))
@@ -115,6 +113,24 @@ pub fn save_scores(scores: &Array2<f32>,
     .join("\n");
 
     //Parallel
+    std::fs::write(filename, file_contents)?;
+    Ok(())
+}
+
+/// Save contributions
+pub fn save_contributions(contributions: &HashMap<usize, Vec<f32>>, 
+                   protein_set: &ProteinSet,
+                 filename: &str) -> std::io::Result<()> {
+
+    let mut file_contents = "peptide,target_position,contribution\n".to_owned();
+
+    for (peptide_index, vec) in contributions.iter() {
+        let peptide_name = protein_set.get_protein_by_id(*peptide_index).name();
+
+        for position in 0..vec.len() {
+            file_contents.push_str(&format!("{},{},{}\n", peptide_name, position, vec[position]));
+        }
+    }
     std::fs::write(filename, file_contents)?;
     Ok(())
 }
