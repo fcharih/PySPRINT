@@ -19,7 +19,7 @@ def main(args: SimpleNamespace):
 
     if args.sequence:
         records = [rec for rec in SeqIO.parse(args.sequence, "fasta")]
-        xticklabels = list(str(records[0].seq))
+        xticklabels = list(str(records[0].seq)) # There should only be 1 seq (target)
     else:
         xticklabels = list(range(1, target_length + 1))
 
