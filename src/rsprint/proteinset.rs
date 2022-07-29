@@ -70,6 +70,13 @@ impl ProteinSet {
         self.indices = indices;
     }
 
+    // Add new proteins from a file
+    pub fn add_from_file(&mut self, filepath: &String, new: bool) {
+        let proteins = load_fasta(filepath, new)
+            .expect("Error while opening sequences file.");
+        self.add_new(proteins, new);
+    }
+
     pub fn get_protein_by_id(&self, index: usize) -> &Protein {
         &self.proteins[index]
     }

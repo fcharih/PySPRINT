@@ -39,7 +39,7 @@ name = "site-predictor"
 path = "src/site_predictor.rs"
 
 [[bin]]
-name = "peptide_scorer"
+name = "peptide-scorer"
 path = "src/peptide_scorer.rs"
 
 

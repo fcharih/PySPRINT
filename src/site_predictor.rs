@@ -17,7 +17,7 @@ pub struct SitePredictionArgs {
     #[clap(value_parser, short='t', long="target_name")]
     pub target_name: String,
 
-    #[clap(value_parser, long="training_pairs")]
+    #[clap(value_parser, short='r', long="training_pairs")]
     pub training_pairs_path: String,
 
     #[clap(value_parser, long="t_sim", default_value="15")]
@@ -26,7 +26,7 @@ pub struct SitePredictionArgs {
     #[clap(value_parser, long="t_hsp", default_value="35")]
     pub t_hsp: i16,
 
-    #[clap(value_parser, long="output")]
+    #[clap(value_parser, short='o', long="output")]
     pub output_path: String,
 
     #[clap(value_parser, long="kmer_size", default_value="20")]
