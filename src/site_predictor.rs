@@ -32,6 +32,7 @@ pub struct SitePredictionArgs {
     #[clap(value_parser, long="kmer_size", default_value="20")]
     pub kmer_size: usize,
 }
+
 fn main() {
 
     let args = SitePredictionArgs::parse();

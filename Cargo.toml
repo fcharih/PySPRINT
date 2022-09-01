@@ -16,6 +16,7 @@ chrono = "*"
 rand = "*"
 pyo3 = "*"
 ndarray = "*"
+numpy = "*"
 
 [lib]
 name = "rsprint"
