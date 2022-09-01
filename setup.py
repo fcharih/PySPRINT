@@ -8,4 +8,9 @@ setup(
     packages=["rsprint"],
     # rust extensions are not zip safe, just like C-extensions.
     zip_safe=False,
+    entry_points={
+    'console_scripts': [
+        'rsprint = rsprint.entrypoints:main'
+     ],
+    },
 )

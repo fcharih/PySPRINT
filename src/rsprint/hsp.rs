@@ -106,6 +106,12 @@ impl HSP {
         }
         
     }
+
+    pub fn to_named_tuple(&self, protein_set: &ProteinSet) -> (String, usize, String, usize, usize) {
+        let protein1 = protein_set.get_protein_by_id(self.location1.index()).name();
+        let protein2 = protein_set.get_protein_by_id(self.location2.index()).name();
+        (protein1, self.location1.position(), protein2, self.location2.position(), self.length)
+    }
 }
 
 impl Clone for HSP {
