@@ -13,5 +13,6 @@ import rsprint
 def main(args):
     proteins = [(p.id, str(p.seq)) for p in Bio.SeqIO.parse(args.input, "fasta")]
     hsps = rsprint.extract_hsps(proteins)
+    # TODO process hsps here
     with open(args.output, "w") as output_file:
-        output_file.write("\n".join([f"{x[0]} {x[1]} {x[2]} {x[3]} {x[4]}" for x in hsps]))
+        output_file.write("\n".join([f"{x[0]} {x[2]} {x[1]} {x[3]} {x[4]}" for x in hsps]))
