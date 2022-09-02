@@ -112,7 +112,7 @@ fn rsprint(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         verbose: bool
     ) -> PyResult<HashSet<(String, String, usize, usize, usize)>> {
 
-        let mut protein_set = ProteinSet::new(
+        let protein_set = ProteinSet::new(
             convert_tuples_to_proteins(proteins, true)
         );
 
@@ -213,6 +213,7 @@ fn rsprint(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 
     m.add_function(wrap_pyfunction!(extract_hsps_py, m)?)?;
     m.add_function(wrap_pyfunction!(extract_peptide_hsps_py, m)?)?;
+    m.add_function(wrap_pyfunction!(process_hsps_py, m)?)?;
     m.add_function(wrap_pyfunction!(score_peptides_py, m)?)?;
     m.add_function(wrap_pyfunction!(score_py, m)?)?;
     Ok(())

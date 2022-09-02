@@ -49,7 +49,7 @@ def main():
     hsp_processing.set_defaults(func=process_hsps)
 
     # All-to-all scoring
-    all_to_all = subparsers.add_parser("extract_peptide_hsps", help="Score all PPIs.")
+    all_to_all = subparsers.add_parser("all_to_all", help="Score all PPIs.")
     all_to_all.add_argument("-i", "--input", type=str, required=True,
         help=("FASTA-formatted file containing the protein sequences."))
     all_to_all.add_argument("-o", "--output", type=str, required=True,
@@ -63,7 +63,7 @@ def main():
     all_to_all.set_defaults(func=score_all_to_all)
 
     # Peptide scoring
-    peptide_scoring = subparsers.add_parser("extract_peptide_hsps", help="Score peptides against a target.")
+    peptide_scoring = subparsers.add_parser("score_peptides", help="Score peptides against a target.")
     peptide_scoring.add_argument("-i", "--input", type=str, required=True,
         help=("FASTA-formatted file containing the protein sequences."))
     peptide_scoring.add_argument("-p", "--peptides", type=str, required=True,

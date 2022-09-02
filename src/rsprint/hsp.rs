@@ -111,7 +111,7 @@ impl HSP {
         let id1 = protein_set.get_protein_by_name(&tuple.0).index();
         let id2 = protein_set.get_protein_by_name(&tuple.1).index();
         let location1 = Location::new(id1, tuple.2);
-        let location2 = Location::new(id1, tuple.3);
+        let location2 = Location::new(id2, tuple.3);
         HSP::new(location1, location2, tuple.4)
     }
 
