@@ -107,10 +107,18 @@ impl HSP {
         
     }
 
-    pub fn to_named_tuple(&self, protein_set: &ProteinSet) -> (String, usize, String, usize, usize) {
+    pub fn from_named_tuple(tuple: (String, String, usize, usize, usize), protein_set: &ProteinSet) -> Self {
+        let id1 = protein_set.get_protein_by_name(&tuple.0).index();
+        let id2 = protein_set.get_protein_by_name(&tuple.1).index();
+        let location1 = Location::new(id1, tuple.2);
+        let location2 = Location::new(id1, tuple.3);
+        HSP::new(location1, location2, tuple.4)
+    }
+
+    pub fn to_named_tuple(&self, protein_set: &ProteinSet) -> (String, String, usize, usize, usize) {
         let protein1 = protein_set.get_protein_by_id(self.location1.index()).name();
         let protein2 = protein_set.get_protein_by_id(self.location2.index()).name();
-        (protein1, self.location1.position(), protein2, self.location2.position(), self.length)
+        (protein1, protein2, self.location1.position(), self.location2.position(), self.length)
     }
 }
 

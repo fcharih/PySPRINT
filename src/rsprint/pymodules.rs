@@ -1,6 +1,5 @@
 use std::collections::HashSet;
 
-use bio::alphabets::protein;
 use numpy::ToPyArray;
 use numpy::{PyArray2};
 use pyo3::prelude::*;
@@ -10,6 +9,7 @@ use crate::rsprint::hsp::HSP;
 use crate::rsprint::prediction::score_interactions;
 
 use super::{proteinset::ProteinSet, protein::Protein, extraction::extract_hsps};
+use super::{processing::process_hsps};
 
 #[pymodule]
 fn rsprint(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
@@ -29,7 +29,7 @@ fn rsprint(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         t_smer: i16,
         t_hsp: i16,
         kmer_size: usize
-    ) -> PyResult<HashSet<(String, usize, String, usize, usize)>> {
+    ) -> PyResult<HashSet<(String, String, usize, usize, usize)>> {
         
         let protein_set = ProteinSet::new(
             convert_tuples_to_proteins(proteins, true)
@@ -47,7 +47,10 @@ fn rsprint(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
             false
         );
 
-        Ok(hsps.iter().map(|hsp| hsp.to_named_tuple(&protein_set)).collect())
+        Ok(hsps
+            .iter()
+            .map(|hsp| hsp.to_named_tuple(&protein_set))
+            .collect())
     }
 
     #[pyfunction(
@@ -89,8 +92,41 @@ fn rsprint(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
             false
         );
 
-        Ok(hsps.iter().map(|hsp| hsp.to_tuple().unwrap()).collect())
+        Ok(hsps
+            .iter()
+            .map(|hsp| hsp.to_tuple().unwrap())
+            .collect())
     }
+
+    #[pyfunction(
+        kmer_size = "20",
+        t_count = "40",
+        verbose = "false"
+    )]
+    #[pyo3(name = "process_hsps")]
+    pub fn process_hsps_py(
+        proteins: Vec<(String, String)>,
+        hsps: HashSet<(String, String, usize, usize, usize)>,
+        kmer_size: usize,
+        t_count: u16,
+        verbose: bool
+    ) -> PyResult<HashSet<(String, String, usize, usize, usize)>> {
+
+        let mut protein_set = ProteinSet::new(
+            convert_tuples_to_proteins(proteins, true)
+        );
+
+        let parsed_hsps: HashSet<HSP> = hsps
+            .into_iter()
+            .map(|hsp| HSP::from_named_tuple(hsp, &protein_set))
+            .collect();
+        let hsps = process_hsps(&protein_set, parsed_hsps, kmer_size, t_count, verbose);
+
+        Ok(hsps
+            .iter()
+            .map(|hsp| hsp.to_named_tuple(&protein_set))
+            .collect())
+}
 
     #[pyfunction(
         kmer_size = "20",

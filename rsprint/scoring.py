@@ -7,11 +7,30 @@ LICENSE file in the root directory of this source tree.
 """
 
 import Bio.SeqIO
+from loguru import logger 
+
 import rsprint
 
+from predictions import Predictions
+
 def score_all_to_all(args):
-    print("Scoring all-to-all")
-    # scores = rsprint.score_interactions()
+    logger.info("Loading the protein sequences...")
+    proteins = [(p.id, str(p.seq)) for p in Bio.SeqIO.parse(args.input, "fasta")]
+
+    logger.info(f"Loading the HSPs...")
+    hsps = set([tuple(x.split()) for x in open(args.hsps).read().split("\n")])
+
+    logger.info(f"Loading the training pairs...")
+    training_pairs = [tuple(x.rstrip("\n").split()) for x in open(args.training_pairs)]
+
+    logger.info(f"Scoring the interactions...")
+    scores = rsprint.score_interactions(proteins, hsps, training_pairs, kmer_size=args.kmer_size)
+    predictions = Predictions(scores, proteins)
+
+    logger.info(f"Saving the scores to a {args.output}...")
+    predictions.save(args.output)
+
+    logger.info(f"Done!")
 
 def score_peptides(args):
     print("Scoring peptides")

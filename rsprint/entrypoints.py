@@ -30,6 +30,8 @@ def main():
         help=("Threshold at which two HSPs are considered similar."))
     hsp_extraction.add_argument("-k", "--kmer_size", type=int, required=False, default=20,
         help=("Minimum length of an HSP."))
+    hsp_extraction.add_argument("-c", "--t_count", type=int, required=False, default=40,
+        help=("Threshold on the max number of times a residue can be involved in a HSP before being removed."))
     hsp_extraction.set_defaults(func=extract_hsps)
 
     # HSP processing
