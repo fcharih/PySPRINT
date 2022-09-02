@@ -11,7 +11,7 @@ from loguru import logger
 
 import rsprint
 
-from predictions import Predictions
+from .predictions import Predictions
 
 def score_all_to_all(args):
     logger.info("Loading the protein sequences...")
