@@ -137,7 +137,7 @@ fn rsprint(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
     pub fn score_py<'py>(
         py: Python<'py>,
         proteins: Vec<(String, String)>,
-        hsps: HashSet<(usize, usize, usize, usize, usize)>,
+        hsps: HashSet<(String, String, usize, usize, usize)>,
         training_pairs: Vec<(String, String)>,
         kmer_size: usize,
         process_rank:usize,
@@ -149,8 +149,8 @@ fn rsprint(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         );
 
         let parsed_hsps: HashSet<HSP> = hsps
-            .iter()
-            .map(|h| HSP::from_tuple(*h).unwrap())
+            .into_iter()
+            .map(|h| HSP::from_named_tuple(h, &protein_set))
             .collect();
 
         let matrix = score_interactions(
@@ -176,7 +176,7 @@ fn rsprint(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         py: Python<'py>,
         proteins: Vec<(String, String)>,
         peptides: Vec<(String, String)>,
-        hsps: HashSet<(usize, usize, usize, usize, usize)>,
+        hsps: HashSet<(String, String, usize, usize, usize)>,
         training_pairs: Vec<(String, String)>,
         kmer_size: usize,
         process_rank:usize,
@@ -193,8 +193,8 @@ fn rsprint(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         );
 
         let parsed_hsps: HashSet<HSP> = hsps
-            .iter()
-            .map(|h| HSP::from_tuple(*h).unwrap())
+            .into_iter()
+            .map(|h| HSP::from_named_tuple(h, &protein_set))
             .collect();
 
         let matrix = score_interactions(

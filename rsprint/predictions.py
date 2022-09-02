@@ -13,7 +13,7 @@ import numpy as np
 
 class Predictions(object):
     def __init__(self, scores: np.array, protein_names: List[str], peptide_names: List[str] = []) -> "Predictions":
-        self.names = [x[0] for x in protein_names] + [x[0] for x in peptide_names]
+        self.names = [x for x in protein_names] + [x for x in peptide_names]
         self.name_index_map = { p: i for i, p in enumerate(protein_names + peptide_names) }
         self.index_name_map = { i: p for i, p in enumerate(protein_names + peptide_names) }
         self.scores = scores
@@ -47,4 +47,4 @@ class Predictions(object):
                 "names": self.names,
                 "scores": self.scores
             }
-            pickle.dump(file_content, pickle)
+            pickle.dump(file_content, pickle_file)
