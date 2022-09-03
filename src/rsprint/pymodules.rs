@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashSet, HashMap};
 
 use numpy::ToPyArray;
 use numpy::{PyArray2};
@@ -10,6 +10,7 @@ use crate::rsprint::prediction::score_interactions;
 
 use super::{proteinset::ProteinSet, protein::Protein, extraction::extract_hsps};
 use super::{processing::process_hsps};
+use super::{sites::compute_contributions};
 
 #[pymodule]
 fn rsprint(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
@@ -211,11 +212,56 @@ fn rsprint(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 
     }
 
+    #[pyfunction(
+        kmer_size = "20",
+        process_rank = "0",
+        world_size = "1"
+    )]
+    #[pyo3(name = "compute_contributions")]
+    pub fn compute_contributions_py(
+        proteins: Vec<(String, String)>,
+        peptides: Vec<(String, String)>,
+        hsps: HashSet<(String, String, usize, usize, usize)>,
+        training_pairs: Vec<(String, String)>,
+        target: String,
+        kmer_size: usize,
+        process_rank: usize,
+        world_size: usize
+    ) -> PyResult<HashMap<String, Vec<f32>>> {
+
+        let mut protein_set = ProteinSet::new(
+            convert_tuples_to_proteins(proteins, false)
+        );
+
+        protein_set.add_new(
+            convert_tuples_to_proteins(peptides, true),
+            true
+        );
+
+        let parsed_hsps: HashSet<HSP> = hsps
+            .into_iter()
+            .map(|h| HSP::from_named_tuple(h, &protein_set))
+            .collect();
+
+        // Compute the contributions of residues within the target to the interaction score
+        // for the peptides of interest (new)
+        let contributions = compute_contributions(
+            &target, &protein_set, &parsed_hsps, &training_pairs, kmer_size, process_rank, world_size, false);
+
+        let named_contributions: HashMap<String, Vec<f32>> = contributions
+            .into_iter()
+            .map(|(k, v)| (protein_set.get_protein_by_id(k).name(), v))
+            .collect();
+
+        Ok(named_contributions)
+    }
+
     m.add_function(wrap_pyfunction!(extract_hsps_py, m)?)?;
     m.add_function(wrap_pyfunction!(extract_peptide_hsps_py, m)?)?;
     m.add_function(wrap_pyfunction!(process_hsps_py, m)?)?;
     m.add_function(wrap_pyfunction!(score_peptides_py, m)?)?;
     m.add_function(wrap_pyfunction!(score_py, m)?)?;
+    m.add_function(wrap_pyfunction!(compute_contributions_py, m)?)?;
     Ok(())
 }
 

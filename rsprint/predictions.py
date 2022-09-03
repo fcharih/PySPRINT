@@ -33,7 +33,7 @@ class Predictions(object):
             scores_dict = dict(zip(self.names, list(scores_array)))
             return scores_dict
         else:
-            raise Exception("Nope")
+            raise Exception(f"`{format}` is not a valid format. Please choose one from `dict` and `array`.")
 
     def get_score(self, protein1: str, protein2: str) -> float:
         protein1_index = self.name_index_map[protein1]
