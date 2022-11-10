@@ -9,6 +9,9 @@ The SPRINT algorithm was designed by Li and Ilie
 
 This package was only tested on macOS and Linux (Ubuntu).
 
+**OpenMPI must be installed on your system**. This can be done
+with Homebrew (macOS) or your package manager on Linux platforms.
+
 ### Building from source
 
 If you have a recent version of [Rust](https://www.rust-lang.org/learn/get-started) on
