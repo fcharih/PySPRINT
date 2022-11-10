@@ -41,7 +41,7 @@ They are tuple that describe the location of the similarity region in *Protein A
 and *Protein B*: *(ID Prot A, ID Prot B, Position in A, Position in B, Length)*.
 
 **Note:**
-The proteins from which we should extract hsps are:
+The proteins from which we should extract HSPs are:
 1. Proteins that we wish to compute interactions for (all proteins in all-to-all runs).
 2. Proteins that are in the training data.
 
