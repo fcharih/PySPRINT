@@ -13,4 +13,12 @@ setup(
         'rsprint = rsprint.entrypoints:main'
      ],
     },
+    install_requires=[
+        "biopython",
+        "numpy",
+        "mpi4py",
+        "matplotlib",
+        "loguru",
+        "pandas"
+    ]
 )
