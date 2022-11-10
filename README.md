@@ -44,7 +44,7 @@ See the help file for the parameters.
 
 The HSPs can also be extracted with a Python call:
 
-```
+```python
 from rsprint import extract_hsps
 
 # Proteins from which HSPs should be extracted (DO NOT INCLUDE PEPTIDE HERE)
