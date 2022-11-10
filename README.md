@@ -10,7 +10,8 @@ The SPRINT algorithm was designed by Li and Ilie
 This package was only tested on macOS and Linux (Ubuntu).
 
 **OpenMPI must be installed on your system**. This can be done
-with [Homebrew (macOS)](https://formulae.brew.sh/formula/open-mpi) or your package manager on Linux platforms.
+with [Homebrew (macOS)](https://formulae.brew.sh/formula/open-mpi)
+or your package manager on Linux platforms.
 
 ### Building from source
 
@@ -135,7 +136,7 @@ prediction_matrix = score_peptides(proteins, peptides, hsps, training_pairs, kme
 
 # Convert the matrix to a Predictions object
 protein_names = [p[0] for p in proteins]
-peptide_names = [p[1] for p in proteins]
+peptide_names = [p[1] for p in peptides]
 predictions = Predictions(prediction_matrix, protein_names, peptide_names)
 
 # Now you can easily retrieve scores for your peptides
