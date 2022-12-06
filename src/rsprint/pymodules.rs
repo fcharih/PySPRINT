@@ -70,7 +70,7 @@ fn rsprint(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         t_smer: i16,
         t_hsp: i16,
         kmer_size: usize
-    ) -> PyResult<HashSet<(usize, usize, usize, usize, usize)>> {
+    ) -> PyResult<HashSet<(String, String, usize, usize, usize)>> {
         
         let mut protein_set = ProteinSet::new(
             convert_tuples_to_proteins(proteins, false)
@@ -95,7 +95,7 @@ fn rsprint(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 
         Ok(hsps
             .iter()
-            .map(|hsp| hsp.to_tuple().unwrap())
+            .map(|hsp| hsp.to_named_tuple(&protein_set))
             .collect())
     }
 
