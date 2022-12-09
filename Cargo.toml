@@ -21,7 +21,10 @@ numpy = "*"
 [lib]
 name = "sprint"
 path = "src/lib.rs"
-crate-type = ["rlib"]#, "cdylib"]
+crate-type = ["rlib", "cdylib"]
+
+[features]
+default = ["pyo3/extension-module"]
 
 [[bin]]
 name = "extractor"
