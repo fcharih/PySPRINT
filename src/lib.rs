@@ -5,4 +5,4 @@ extern crate clap;
 extern crate rand;
 
 // Modules
-pub mod rsprint;
+pub mod sprint;

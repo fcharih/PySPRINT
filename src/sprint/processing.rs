@@ -1,6 +1,6 @@
 use std::collections::HashSet;
-use crate::rsprint::proteinset::ProteinSet;
-use crate::rsprint::hsp::HSP;
+use crate::sprint::proteinset::ProteinSet;
+use crate::sprint::hsp::HSP;
 
 use super::location::Location;
 

@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::io::Error;
-use crate::rsprint::protein::Protein;
+use crate::sprint::protein::Protein;
 
-use crate::rsprint::fileio::load_fasta;
+use crate::sprint::fileio::load_fasta;
 
 /// Structure that holds the sequences used to extract HSPs
 /// and score protein interactions

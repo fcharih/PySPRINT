@@ -1,6 +1,6 @@
 use clap::Parser;
 
-use rsprint::rsprint::{fileio::{load_fasta, load_hsps, load_pairs, save_contributions}, proteinset::ProteinSet, extraction::{extract_hsps}, sites::{compute_contributions}};
+use sprint::sprint::{fileio::{load_fasta, load_hsps, load_pairs, save_contributions}, proteinset::ProteinSet, extraction::{extract_hsps}, sites::{compute_contributions}};
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]

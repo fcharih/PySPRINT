@@ -1,8 +1,8 @@
 use std::collections::HashSet;
-use crate::rsprint::seed::Seed;
-use crate::rsprint::smer::Smer;
-use crate::rsprint::constants::{PAM120, PAM120_SPRINT, PAM120_ORDERED_SPRINT};
-use crate::rsprint::utils::{convert_smer_to_sprint, convert_smer_to_pysprint};
+use crate::sprint::seed::Seed;
+use crate::sprint::smer::Smer;
+use crate::sprint::constants::{PAM120, PAM120_SPRINT, PAM120_ORDERED_SPRINT};
+use crate::sprint::utils::{convert_smer_to_sprint, convert_smer_to_pysprint};
 
 pub fn compare_smers(smer1: &Smer, smer2: &Smer, seed: &Seed) -> i16 {
     let mut score = 0;

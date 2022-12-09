@@ -1,2 +1,2 @@
-from .rsprint import *
+from .sprint import *
 from .predictions import Predictions

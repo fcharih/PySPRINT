@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
-use crate::rsprint::constants::CODE_RESIDUE_MAP;
-use crate::rsprint::location::Location;
-use crate::rsprint::seed::Seed;
+use crate::sprint::constants::CODE_RESIDUE_MAP;
+use crate::sprint::location::Location;
+use crate::sprint::seed::Seed;
 
 #[derive(Hash, Clone)]
 pub struct Smer {

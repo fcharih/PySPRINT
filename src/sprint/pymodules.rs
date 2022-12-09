@@ -5,15 +5,15 @@ use numpy::{PyArray2};
 use pyo3::prelude::*;
 use pyo3::pymodule;
 
-use crate::rsprint::hsp::HSP;
-use crate::rsprint::prediction::score_interactions;
+use crate::sprint::hsp::HSP;
+use crate::sprint::prediction::score_interactions;
 
 use super::{proteinset::ProteinSet, protein::Protein, extraction::extract_hsps};
 use super::{processing::process_hsps};
 use super::{sites::compute_contributions};
 
 #[pymodule]
-fn rsprint(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
+fn sprint(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 
     #[pyfunction(
         process_rank = "0",

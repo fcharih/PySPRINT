@@ -1,6 +1,6 @@
 use clap::Parser;
 
-use rsprint::rsprint::{
+use sprint::sprint::{
     proteinset::ProteinSet,
     fileio::{load_hsps, load_pairs, save_peptide_scores},
     extraction::extract_hsps,

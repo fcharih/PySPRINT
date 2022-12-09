@@ -1,5 +1,5 @@
-use crate::rsprint::protein::Protein;
-use crate::rsprint::constants::{PAM120};
+use crate::sprint::protein::Protein;
+use crate::sprint::constants::{PAM120};
 
 pub fn score_sequences(protein1: &Protein, protein2: &Protein, start1: usize, start2: usize, length: usize) -> i16 {
     let mut score = 0i16;

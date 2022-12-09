@@ -10,17 +10,17 @@ LICENSE file in the root directory of this source tree.
 from loguru import logger
 import Bio.SeqIO
 
-import rsprint
+import sprint
 
 def main(args):
     logger.info("Loading the protein sequences...")
     proteins = [(p.id, str(p.seq)) for p in Bio.SeqIO.parse(args.input, "fasta")]
 
     logger.info(f"Extracting the HSPs from the {len(proteins)} provided protein sequences...")
-    hsps = rsprint.extract_hsps(proteins)
+    hsps = sprint.extract_hsps(proteins)
 
     logger.info(f"Processing the HSPs to account for overrepresented residues...")
-    processed_hsps = rsprint.process_hsps(proteins, hsps, kmer_size=args.kmer_size, t_count=args.t_count)
+    processed_hsps = sprint.process_hsps(proteins, hsps, kmer_size=args.kmer_size, t_count=args.t_count)
 
     logger.info(f"Writing to a file...")
     with open(args.output, "w") as output_file:

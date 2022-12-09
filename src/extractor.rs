@@ -1,8 +1,8 @@
 use clap::Parser;
 
-use rsprint::rsprint::proteinset::ProteinSet;
-use rsprint::rsprint::extraction::extract_hsps;
-use rsprint::rsprint::fileio::save_hsps;
+use sprint::sprint::proteinset::ProteinSet;
+use sprint::sprint::extraction::extract_hsps;
+use sprint::sprint::fileio::save_hsps;
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]

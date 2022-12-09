@@ -2,15 +2,15 @@ use std::collections::{HashMap, HashSet};
 use std::sync::Mutex;
 use rayon::prelude::*;
 use std::time::Instant;
-use crate::rsprint::proteinset::ProteinSet;
-use crate::rsprint::scoring::{score_sequences, score_position};
-use crate::rsprint::seed::Seed; 
-use crate::rsprint::smer::{Smer, SmerCollection}; 
-use crate::rsprint::protein::Protein; 
-use crate::rsprint::hsp::HSP;
-use crate::rsprint::location::Location;
-use crate::rsprint::constants::{RESIDUE_CODES, SEEDS};
-use crate::rsprint::similarity::{compute_similar_smers};
+use crate::sprint::proteinset::ProteinSet;
+use crate::sprint::scoring::{score_sequences, score_position};
+use crate::sprint::seed::Seed; 
+use crate::sprint::smer::{Smer, SmerCollection}; 
+use crate::sprint::protein::Protein; 
+use crate::sprint::hsp::HSP;
+use crate::sprint::location::Location;
+use crate::sprint::constants::{RESIDUE_CODES, SEEDS};
+use crate::sprint::similarity::{compute_similar_smers};
 
 /// Given a set of sequences (ProteinSet struct) and a Seed, extracts
 /// all the s-mers from the sequences

@@ -1,4 +1,4 @@
-use crate::rsprint::constants::RESIDUE_CODES;
+use crate::sprint::constants::RESIDUE_CODES;
 
 #[derive(Clone)]
 pub struct Protein {

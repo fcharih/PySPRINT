@@ -1,4 +1,4 @@
-use crate::rsprint::seed::Seed;
+use crate::sprint::seed::Seed;
 
 pub fn matrix_max(matrix: &Vec<Vec<f32>>) -> f32 {
     let mut max = 0f32;

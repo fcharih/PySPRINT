@@ -10,7 +10,7 @@ from typing import Set, Tuple
 import Bio.SeqIO
 from loguru import logger 
 
-import rsprint
+import sprint
 
 from .predictions import Predictions
 
@@ -37,7 +37,7 @@ def score_all_to_all(args):
     training_pairs = [tuple(x.rstrip("\n").split()) for x in open(args.training_pairs)]
 
     logger.info(f"Scoring the interactions...")
-    scores = rsprint.score_interactions(proteins, hsps, training_pairs, kmer_size=args.kmer_size)
+    scores = sprint.score_interactions(proteins, hsps, training_pairs, kmer_size=args.kmer_size)
     predictions = Predictions(scores, [p[0] for p in proteins])
 
     logger.info(f"Saving the scores to a {args.output}...")
@@ -59,11 +59,11 @@ def score_peptides(args):
     training_pairs = [tuple(x.rstrip("\n").split()) for x in open(args.training_pairs)]
 
     logger.info(f"Extracting the peptide hsps...")
-    peptide_hsps = rsprint.extract_peptide_hsps(proteins, peptides, t_smer=args.t_smer, t_hsp=args.t_hsp, kmer_size=args.kmer_size)
+    peptide_hsps = sprint.extract_peptide_hsps(proteins, peptides, t_smer=args.t_smer, t_hsp=args.t_hsp, kmer_size=args.kmer_size)
     hsps = hsps.union(peptide_hsps)
 
     logger.info(f"Scoring the interactions...")
-    scores = rsprint.score_interactions(proteins, hsps, training_pairs, kmer_size=args.kmer_size)
+    scores = sprint.score_interactions(proteins, hsps, training_pairs, kmer_size=args.kmer_size)
     predictions = Predictions(scores, [p[0] for p in proteins], peptide_names=[p[0] for p in peptides])
 
     logger.info(f"Saving the scores to a {args.output}...")

@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 
-use crate::rsprint::proteinset::ProteinSet;
-use crate::rsprint::location::Location;
+use crate::sprint::proteinset::ProteinSet;
+use crate::sprint::location::Location;
 
 #[pyclass]
 #[derive(Hash)]

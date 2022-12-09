@@ -1,7 +1,7 @@
 use clap::Parser;
 use std::path::Path;
 
-use rsprint::rsprint::{fileio::{load_hsps, save_hsps}, proteinset::ProteinSet, processing::{process_hsps}};
+use sprint::sprint::{fileio::{load_hsps, save_hsps}, proteinset::ProteinSet, processing::{process_hsps}};
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
