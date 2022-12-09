@@ -1,4 +1,4 @@
-# rSPRINT
+# PySPRINT
 
 Author: François Charih <francois@charih.ca>
 
@@ -19,7 +19,7 @@ If you have a recent version of [Rust](https://www.rust-lang.org/learn/get-start
 your system, building from scratch is easy:
 
 ```
-$ pip install git+https://github.com/fcharih/rSPRINT.git
+$ pip install git+https://github.com/fcharih/PySPRINT.git
 ```
 
 **Boom! Done!**
@@ -27,7 +27,7 @@ $ pip install git+https://github.com/fcharih/rSPRINT.git
 ### Installation with pip
 
 TODO
-## Using rSPRINT
+## Using PySPRINT
 
 I suggest using default settings unless you understand how the SPRINT algorithm
 works.
