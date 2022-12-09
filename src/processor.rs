@@ -1,4 +1,5 @@
 use clap::Parser;
+use std::path::Path;
 
 use rsprint::rsprint::{fileio::{load_hsps, save_hsps}, proteinset::ProteinSet, processing::{process_hsps}};
 
@@ -25,11 +26,8 @@ fn main() {
     let args = ProcessingArgs::parse();
 
     // Ensure that the output has a .phsp extension (processed hsp)
-    let mut output_phsp = args.output_path
-        .split(".")
-        .collect::<Vec<&str>>()[0]
-        .to_owned();
-    output_phsp.push_str(".phsp");
+    let output_path = Path::new(&args.output_path);
+    let output_filepath = output_path.with_extension("phsp");
 
     // Load the sequences
     let protein_set = ProteinSet::from_file(&args.sequences_path).unwrap();
@@ -42,5 +40,5 @@ fn main() {
         &protein_set, hsps, args.kmer_size, args.count_threshold, true);
 
     // Save the processed HSPs to a file
-    save_hsps(processed, &protein_set, &output_phsp).unwrap();
+    save_hsps(processed, &protein_set, &output_filepath.to_str().unwrap()).unwrap();
 }

@@ -21,7 +21,7 @@ numpy = "*"
 [lib]
 name = "rsprint"
 path = "src/lib.rs"
-crate-type = ["rlib", "cdylib"]
+crate-type = ["rlib"]#, "cdylib"]
 
 [[bin]]
 name = "extractor"
