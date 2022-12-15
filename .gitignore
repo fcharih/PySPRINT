@@ -4,3 +4,5 @@ Cargo.lock
 build
 environment
 **/__pycache__
+.venv
+poetry.lock
