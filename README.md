@@ -50,7 +50,7 @@ Normally, this means the human proteome.
 This can be achieved in CLI mode:
 
 ```
-$ rsprint extract_hsps -h
+$ sprint extract_hsps -h
 ```
 
 Arguments listed when running with `-h`.
@@ -58,7 +58,7 @@ Arguments listed when running with `-h`.
 The HSPs can also be extracted with a Python call:
 
 ```python
-from rsprint import extract_hsps
+from sprint import extract_hsps
 
 # Proteins from which HSPs should be extracted (DO NOT INCLUDE PEPTIDE HERE)
 proteins = [("protein1", "SEQUENCE"), ...]
@@ -85,7 +85,7 @@ proteins, but that account little for actual protein interactions, (*e.g.*
 signal peptides) the SPRINT algorithm alter HSPs that come from such regions.
 
 ```
-$ rsprint process_hsps -h
+$ sprint process_hsps -h
 ```
 
 Arguments listed when running with `-h`.
@@ -93,7 +93,7 @@ Arguments listed when running with `-h`.
 The HSPs can also be processed with a Python call:
 
 ```python
-from rsprint import extract_hsps, process_hsps
+from sprint import extract_hsps, process_hsps
 
 # Proteins from which HSPs should be extracted (DO NOT INCLUDE PEPTIDE HERE)
 proteins = [("protein1", "SEQUENCE"), ...]
@@ -125,7 +125,7 @@ to score the peptides against AND from proteins in the training set
 (training/interacting pairs).
 
 ```python
-from rsprint import score_peptides, Predictions
+from sprint import score_peptides, Predictions
 
 proteins = [("Protein 1", "SEQUENCE"), ...] # tuples
 peptides_to_score = [("Peptide 1", "SEQUENCE"), ...] # tuples
