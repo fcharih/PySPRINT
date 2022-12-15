@@ -1,6 +1,0 @@
-mpi4py
-loguru
-biopython
-matplotlib
-pandas
-numpy

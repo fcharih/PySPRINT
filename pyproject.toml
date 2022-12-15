@@ -1,2 +1,35 @@
+[tool.poetry]
+name = "sprint"
+version = "0.1.0"
+description = "Rust-based implementation of the SPRINT algorithm for PPI prediction with a Python wrapper"
+authors = ["Francois Charih <francois@charih.ca>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+numpy = "^1.23.5"
+loguru = "^0.6.0"
+biopython = "^1.80"
+mpi4py = "^3.1.4"
+pandas = "^1.5.2"
+matplotlib = "^3.6.2"
+maturin = "^0.14.6"
+
+
 [build-system]
-requires = ["setuptools", "wheel", "setuptools-rust"]
+requires = ["poetry-core", "maturin>=0.13,<0.14"]
+build-backend = "maturin"
+
+[project]
+name = "sprint"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+
+
+[project.scripts]
+sprint = "sprint.entrypoints:main"
