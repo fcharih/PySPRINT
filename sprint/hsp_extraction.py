@@ -19,12 +19,12 @@ def main(args):
     logger.info(f"Extracting the HSPs from the {len(proteins)} provided protein sequences...")
     hsps = sprint.extract_hsps(proteins)
 
-    if args.process_hsps:
+    if args.process_hsps is True:
         logger.info(f"Processing the HSPs to account for overrepresented residues...")
-        processed_hsps = sprint.process_hsps(proteins, hsps, kmer_size=args.kmer_size, t_count=args.t_count)
+        hsps = sprint.process_hsps(proteins, hsps, kmer_size=args.kmer_size, t_count=args.t_count)
 
     logger.info(f"Writing to a file...")
     with open(args.output, "w") as output_file:
-        output_file.write("\n".join([f"{x[0]} {x[1]} {x[2]} {x[3]} {x[4]}" for x in processed_hsps]))
+        output_file.write("\n".join([f"{x[0]} {x[1]} {x[2]} {x[3]} {x[4]}" for x in hsps]))
 
     logger.info(f"Done!")

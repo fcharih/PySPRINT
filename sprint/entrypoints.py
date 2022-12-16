@@ -32,7 +32,7 @@ def main():
         help=("Minimum length of an HSP."))
     hsp_extraction.add_argument("-c", "--t_count", type=int, required=False, default=40,
         help=("Threshold on the max number of times a residue can be involved in a HSP before being removed."))
-    hsp_extraction.add_argument("-r", "--process_hsps", action="store_true", default=False,
+    hsp_extraction.add_argument("-r", "--process_hsps", action="store_true",
             help=("Whether the HSPs should be processed to remove resides that occur frequently within HSPs."))
     hsp_extraction.set_defaults(func=extract_hsps)
 
@@ -44,7 +44,7 @@ def main():
         help=("Path to the output file."))
     hsp_processing.add_argument("-s", "--hsps", type=str, required=True,
         help=("Path to the raw HSP file."))
-    hsp_processing.add_argument("-c", "--count_threshold", type=int, required=False, default=40,
+    hsp_processing.add_argument("-c", "--t_count", type=int, required=False, default=40,
         help=("Threshold at which two HSPs are considered similar."))
     hsp_processing.add_argument("-k", "--kmer_size", type=int, required=False, default=20,
         help=("Minimum length of an HSP."))
