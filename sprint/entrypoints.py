@@ -32,6 +32,8 @@ def main():
         help=("Minimum length of an HSP."))
     hsp_extraction.add_argument("-c", "--t_count", type=int, required=False, default=40,
         help=("Threshold on the max number of times a residue can be involved in a HSP before being removed."))
+    hsp_extraction.add_argument("-r", "--process_hsps", action="store_true", default=False,
+            help=("Whether the HSPs should be processed to remove resides that occur frequently within HSPs."))
     hsp_extraction.set_defaults(func=extract_hsps)
 
     # HSP processing
