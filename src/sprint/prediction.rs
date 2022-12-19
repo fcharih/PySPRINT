@@ -86,6 +86,12 @@ pub fn score_interactions(
             .par_iter()
             .for_each(|pair| fill_matrix(pair, &hsp_table, kmer_size as f32, &matrix));
 
+        // Divide the diagonal by two because it is double scored
+        let matrix_ptr = matrix.scores.get();
+        for i in 0..(*matrix_ptr).len_of(Axis(0)) {
+            (*matrix_ptr)[[i, i]] /= 2.0;
+        }
+
         if verbose {
             println!(
                 "Process {} - Scored the interactions in {}...",
@@ -107,11 +113,11 @@ pub unsafe fn initialize_score_matrix(matrix: &mut Vec<f32>, protein_set: &Prote
 }
 
 /// Creates a table of HSPs used in scoring
-/// 
+///
 /// It lists the HSPs in which a given protein is involved
 /// The format of the table is a Vec<Vec<ScoredHSP>> as follows:
-/// 
-/// <--------------- HSPs (vector) ---------------> 
+///
+/// <--------------- HSPs (vector) --------------->
 /// ^
 /// |
 /// |
@@ -119,7 +125,7 @@ pub unsafe fn initialize_score_matrix(matrix: &mut Vec<f32>, protein_set: &Prote
 /// |
 /// |
 /// v
-/// 
+///
 /// The HSPs are sorted in order of the partner protein's index (entry 0 of the scored HSP tuple)
 /// Tuples are (partner_index, partner protein length, length of HSP, HSP score)
 pub fn build_hsp_table(
@@ -186,13 +192,13 @@ pub fn get_1d_index(position1: usize, position2: usize) -> usize {
 }
 
 /// Fill the score matrix using the similarity-to-interacting-pair principle
-/// 
+///
 ///               Interactor 1 --------------- Interactor 2
 ///                    |                            |
 ///               HSP1 |                       HSP2 |
 ///                    |                            |
 ///                 Query 1                      Query 2
-/// 
+///
 pub unsafe fn fill_matrix(
     interacting_pair: &(usize, usize),
     hsps: &Vec<Vec<(usize, f32, f32, f32)>>,
@@ -232,10 +238,5 @@ pub unsafe fn fill_matrix(
                 (*matrix_ptr)[[hsp2.0, hsp1.0]] += contribution;
             }
         }
-    }
-
-    // Divide the diagonal by two because it is double scored
-    for i in 0..(*matrix_ptr).len_of(Axis(0)) {
-        (*matrix_ptr)[[i, i]] /= 2.0;
     }
 }

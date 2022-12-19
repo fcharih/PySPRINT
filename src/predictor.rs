@@ -1,33 +1,35 @@
 use clap::Parser;
 
-use sprint::sprint::{fileio::{load_hsps, load_pairs, save_scores}, proteinset::ProteinSet, prediction::{score_interactions}};
+use sprint::sprint::{
+    fileio::{load_hsps, load_pairs, save_scores},
+    prediction::score_interactions,
+    proteinset::ProteinSet,
+};
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
 pub struct PredictionArgs {
-    #[clap(value_parser, short='i', long="sequences")]
+    #[clap(value_parser, short = 'i', long = "sequences")]
     pub sequences_path: String,
 
-    #[clap(value_parser, short='s', long="hsps")]
+    #[clap(value_parser, short = 's', long = "hsps")]
     pub hsps_path: String,
 
-    #[clap(value_parser, short='r', long="training_pairs")]
+    #[clap(value_parser, short = 'r', long = "training_pairs")]
     pub training_pairs_path: String,
 
-    #[clap(value_parser, short='o', long="output")]
+    #[clap(value_parser, short = 'o', long = "output")]
     pub output_path: String,
 
-    #[clap(value_parser, short='k', long="kmer_size", default_value="20")]
+    #[clap(value_parser, short = 'k', long = "kmer_size", default_value = "20")]
     pub kmer_size: usize,
 }
 
 fn main() {
-
     let args = PredictionArgs::parse();
 
     // Load the sequences
-    let protein_set = ProteinSet::from_file(&args.sequences_path)
-        .unwrap();
+    let protein_set = ProteinSet::from_file(&args.sequences_path).unwrap();
 
     // Load the processed HSPs
     let hsps = load_hsps(&args.hsps_path, &protein_set);
@@ -36,8 +38,15 @@ fn main() {
     let training_pairs = load_pairs(&args.training_pairs_path);
 
     // Score the interactions
-    let scores = score_interactions(&protein_set, &hsps,
-        &training_pairs, args.kmer_size, 0, 1, true);
+    let scores = score_interactions(
+        &protein_set,
+        &hsps,
+        &training_pairs,
+        args.kmer_size,
+        0,
+        1,
+        true,
+    );
 
     // Save the scores to a file
     save_scores(&scores, &protein_set, &args.output_path).unwrap();
