@@ -78,6 +78,10 @@ def main():
         help=("Path to the training pairs (one per line separated by a space or tab)."))
     peptide_scoring.add_argument("-k", "--kmer_size", type=int, required=False, default=20,
         help=("Minimum length of an HSP."))
+    peptide_scoring.add_argument("-m", "--t_sim", type=int, required=False, default=15,
+        help=("Threshold at which two s-mers are considered similar."))
+    peptide_scoring.add_argument("-r", "--t_hsp", type=int, required=False, default=35,
+        help=("Threshold at which two HSPs are considered similar."))
     peptide_scoring.set_defaults(func=score_peptides)
 
     args = parser.parse_args()

@@ -59,11 +59,11 @@ def score_peptides(args):
     training_pairs = [tuple(x.rstrip("\n").split()) for x in open(args.training_pairs)]
 
     logger.info(f"Extracting the peptide hsps...")
-    peptide_hsps = sprint.extract_peptide_hsps(proteins, peptides, t_smer=args.t_smer, t_hsp=args.t_hsp, kmer_size=args.kmer_size)
+    peptide_hsps = sprint.extract_peptide_hsps(proteins, peptides, t_smer=args.t_sim, t_hsp=args.t_hsp, kmer_size=args.kmer_size)
     hsps = hsps.union(peptide_hsps)
 
     logger.info(f"Scoring the interactions...")
-    scores = sprint.score_interactions(proteins, hsps, training_pairs, kmer_size=args.kmer_size)
+    scores = sprint.score_peptides(proteins, peptides, hsps, training_pairs, kmer_size=args.kmer_size)
     predictions = Predictions(scores, [p[0] for p in proteins], peptide_names=[p[0] for p in peptides])
 
     logger.info(f"Saving the scores to a {args.output}...")
